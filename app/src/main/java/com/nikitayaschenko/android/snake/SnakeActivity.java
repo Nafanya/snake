@@ -8,12 +8,26 @@ import android.view.MenuItem;
 
 public class SnakeActivity extends Activity {
 
+    private SnakeView snake;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_snake);
+        snake = new SnakeView(this);
+        setContentView(snake);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        snake.resume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        snake.pause();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

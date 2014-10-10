@@ -11,18 +11,17 @@ import android.widget.Button;
 
 public class MainActivity extends Activity {
 
-    private Button buttonNewGame;
-    private Button buttonHighScore;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setupUI();
     }
 
     private void setupUI() {
-        buttonHighScore = (Button) findViewById(R.id.button_highScore);
-        buttonNewGame = (Button) findViewById(R.id.button_newGame);
+        Button buttonHighScore = (Button) findViewById(R.id.button_highScore);
+        Button buttonNewGame = (Button) findViewById(R.id.button_newGame);
 
         buttonNewGame.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -30,11 +29,24 @@ public class MainActivity extends Activity {
                 launchSnakeActivity();
             }
         });
+
+        buttonHighScore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchHighScoreActivity();
+            }
+        });
     }
 
     private void launchSnakeActivity() {
         Intent intent = new Intent(this, SnakeActivity.class);
         startActivity(intent);
+    }
+
+    private void launchHighScoreActivity() {
+        //TODO: implement HighScoreActivity
+        //Intent intent = new Intent(this, .class);
+        //startActivity(intent);
     }
 
     @Override

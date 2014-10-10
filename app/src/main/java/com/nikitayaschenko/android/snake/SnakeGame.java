@@ -7,7 +7,7 @@ import java.util.Random;
  * Created by Nikita Yaschenko on 07.10.14.
  */
 public class SnakeGame {
-    private static final int FOOD_AMOUNT = 50;
+    private static final int FOOD_AMOUNT = 10;
     private static final int SCORE_PER_FOOD = 10;
 
     private int width;
@@ -21,6 +21,7 @@ public class SnakeGame {
 
     public Cell[][] field;
     private int score;
+    private boolean directionChanged;
 
     public SnakeGame(int width, int height) {
         this.width = width;
@@ -39,6 +40,7 @@ public class SnakeGame {
         if (lose) {
             return Cell.SNAKE;
         }
+        directionChanged = false;
         Coord head = snake.get(0);
         Coord next = next(head, direction);
         Cell nextCell = checkCell(next);
@@ -50,6 +52,9 @@ public class SnakeGame {
             case FOOD:
                 ateFood = true;
                 score += SCORE_PER_FOOD;
+                if (food.size() < 5) {
+                    addFood(random.nextInt(3));
+                }
                 for (Coord f : food) {
                     if (f.x == next.x && f.y == next.y) {
                         food.remove(f);
@@ -63,6 +68,9 @@ public class SnakeGame {
         snake.addFirst(next);
         if (!ateFood) {
             snake.removeLast();
+        }
+        if (food.isEmpty()) {
+            addFood(random.nextInt(6));
         }
         updateField();
         return Cell.EMPTY;
@@ -84,7 +92,7 @@ public class SnakeGame {
 
     private void setupField() {
         field = new Cell[width][height];
-        random = new Random(213);
+        random = new Random();
         snake = new LinkedList<Coord>();
         food = new LinkedList<Coord>();
         field = new Cell[width][height];
@@ -101,7 +109,11 @@ public class SnakeGame {
         }
         direction = Direction.LEFT;
 
-        for (int i = 0; i < FOOD_AMOUNT; i++) {
+        addFood(FOOD_AMOUNT);
+    }
+
+    private void addFood(int amount) {
+        for (int i = 0; i < amount; i++) {
             boolean found = false;
             int x = 0, y = 0;
             while (!found) {
@@ -162,6 +174,10 @@ public class SnakeGame {
     }
 
     public void setDirection(Direction d) {
+        if (directionChanged) {
+            return;
+        }
+        directionChanged = true;
         switch (direction) {
             case UP: if (d == Direction.DOWN) return; break;
             case DOWN: if (d == Direction.UP) return; break;
@@ -171,30 +187,13 @@ public class SnakeGame {
         direction = d;
     }
 
-    public void setRandomDirection() {
-        int r = random.nextInt(4);
-        switch (r) {
-            case 0:
-                if (direction != Direction.UP) {
-                    direction = Direction.DOWN;
-                }
-                break;
-            case 1:
-                if (direction != Direction.DOWN) {
-                    direction = Direction.UP;
-                }
-                break;
-            case 2:
-                if (direction != Direction.LEFT) {
-                    direction = Direction.RIGHT;
-                }
-                break;
-            case 3:
-                if (direction != Direction.RIGHT) {
-                    direction = Direction.LEFT;
-                }
-                break;
-        }
+    public boolean isHead(int x, int y) {
+        Coord c = snake.getFirst();
+        return c.x == x && c.y == y;
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     public enum Cell {
