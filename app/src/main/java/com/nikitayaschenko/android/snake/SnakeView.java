@@ -12,7 +12,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.view.Display;
@@ -145,13 +144,7 @@ class SnakeView extends SurfaceView implements Runnable {
         apple.recycle();
         apple = null;
 
-        int resource;
-        if ((int)(Math.random() * 2) >= 1) {
-            resource = R.drawable.grass;
-        } else {
-            resource = R.drawable.pebbles_texture;
-        }
-        Bitmap fillBMP = BitmapFactory.decodeResource(context.getResources(), resource);
+        Bitmap fillBMP = BitmapFactory.decodeResource(context.getResources(), R.drawable.grass);
         backgroundShader = new BitmapShader(fillBMP, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
 
         fillPaint.setStyle(Paint.Style.FILL);
