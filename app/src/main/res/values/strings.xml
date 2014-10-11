@@ -6,7 +6,6 @@
     <string name="new_game">New game</string>
     <string name="exit">Exit</string>
     <string name="high_score">High score</string>
-    <string name="title_activity_snake">SnakeActivity</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_snake">Snake</string>
 
 </resources>

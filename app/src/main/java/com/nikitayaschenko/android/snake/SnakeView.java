@@ -7,11 +7,14 @@ package com.nikitayaschenko.android.snake;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -37,8 +40,12 @@ class SnakeView extends SurfaceView implements Runnable {
     private Paint eyePaint;
     private Paint borderPaint;
     private Paint foodPaint;
+    private Paint filterPaint;
 
-    Bitmap appleBitmap;
+    private Bitmap appleBitmap;
+    private Bitmap grassBitmap;
+    private BitmapShader backgroundShader;
+    private Paint fillPaint;
 
     private long lastGameUpdate;
     private final static long GAME_UPDATE_INTERVAL = 200 * 1000 * 1000;
@@ -49,7 +56,6 @@ class SnakeView extends SurfaceView implements Runnable {
 
     public SnakeView(Context context) {
         super(context);
-
         this.context = context;
 
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -58,28 +64,11 @@ class SnakeView extends SurfaceView implements Runnable {
         display.getSize(size);
         setupDimensions(size.x, size.y);
 
+        setupResources();
+
         holder = getHolder();
         snake = new SnakeGame(FIELD_WIDTH, FIELD_HEIGHT);
         lose = false;
-
-        textPaint = new Paint();
-        textPaint.setColor(Color.YELLOW);
-        textPaint.setTextSize(Math.min(screenHeight, screenWidth) / 10);
-
-        snakePaint = new Paint();
-        snakePaint.setColor(Color.GREEN);
-        snakePaint.setStyle(Paint.Style.FILL);
-
-        eyePaint = new Paint();
-        eyePaint.setColor(Color.BLUE);
-        eyePaint.setStyle(Paint.Style.FILL);
-
-        borderPaint = new Paint();
-        borderPaint.setColor(Color.BLACK);
-        borderPaint.setStyle(Paint.Style.STROKE);
-
-        foodPaint = new Paint();
-        foodPaint.setColor(Color.RED);
 
         this.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
 
@@ -126,16 +115,54 @@ class SnakeView extends SurfaceView implements Runnable {
         }
     }
 
-    private void setupDimensions(int width, int height) {
-        screenWidth = width;
-        screenHeight = height;
-        cellWidth = (float)screenWidth / FIELD_WIDTH;
-        cellHeight = (float)screenHeight / FIELD_HEIGHT;
+    private void setupResources() {
+        fillPaint = new Paint();
+
+        filterPaint = new Paint();
+        filterPaint.setFilterBitmap(true);
+
+        textPaint = new Paint();
+        textPaint.setColor(Color.YELLOW);
+        textPaint.setTextSize(Math.min(screenHeight, screenWidth) / 10);
+
+        snakePaint = new Paint();
+        snakePaint.setColor(Color.YELLOW);
+        snakePaint.setStyle(Paint.Style.FILL);
+
+        eyePaint = new Paint();
+        eyePaint.setColor(Color.BLUE);
+        eyePaint.setStyle(Paint.Style.FILL);
+
+        borderPaint = new Paint();
+        borderPaint.setColor(Color.BLACK);
+        borderPaint.setStyle(Paint.Style.STROKE);
+
+        foodPaint = new Paint();
+        foodPaint.setColor(Color.RED);
 
         Bitmap apple = BitmapFactory.decodeResource(context.getResources(), R.drawable.red_apple);
         appleBitmap = Bitmap.createScaledBitmap(apple, (int)cellWidth, (int)cellHeight, false);
         apple.recycle();
         apple = null;
+
+        int resource;
+        if ((int)(Math.random() * 2) >= 1) {
+            resource = R.drawable.grass;
+        } else {
+            resource = R.drawable.pebbles_texture;
+        }
+        Bitmap fillBMP = BitmapFactory.decodeResource(context.getResources(), resource);
+        backgroundShader = new BitmapShader(fillBMP, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+
+        fillPaint.setStyle(Paint.Style.FILL);
+        fillPaint.setShader(backgroundShader);
+    }
+
+    private void setupDimensions(int width, int height) {
+        screenWidth = width;
+        screenHeight = height;
+        cellWidth = (float)screenWidth / FIELD_WIDTH;
+        cellHeight = (float)screenHeight / FIELD_HEIGHT;
     }
 
     @Override
@@ -213,7 +240,7 @@ class SnakeView extends SurfaceView implements Runnable {
     @Override
     public void draw(Canvas canvas) {
         canvas.save();
-        canvas.drawColor(Color.WHITE);
+        canvas.drawRect(0, 0, getWidth(), getHeight(), fillPaint);
 
         for (int i = 0; i < FIELD_WIDTH; i++) {
             for (int j = 0; j < FIELD_HEIGHT; j++) {
